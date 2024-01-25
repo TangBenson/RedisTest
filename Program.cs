@@ -1,3 +1,5 @@
+
+using Microsoft.Extensions.Configuration;
 using RedisTest;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<RedisClient>();
+// RedisClient.Init("127.0.0.1:6379");
+// builder.Services.AddSingleton(RedisClient.Instance);
+RedisClient2.Init("127.0.0.1:6379");
+builder.Services.AddSingleton<RedisClient2>();
 
 var app = builder.Build();
 

@@ -8,30 +8,53 @@ using StackExchange.Redis;
 namespace RedisTest.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class TryController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly IDatabase _redisDb;
-        public TryController(IConfiguration configuration, RedisClient redisClient)
+        // private readonly RedisClient _redisClient;
+        private readonly RedisClient2 _redisClient2;
+        public TryController(
+            // RedisClient redisClient,
+            RedisClient2 redisClient2
+            )
         {
-            _configuration = configuration;
-            RedisClient.Init(_configuration["Redis"]!);
-            _redisDb = redisClient.Database;
+            // _redisClient = redisClient;
+            _redisClient2 = redisClient2;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GoodSet(string id)
         {
-            var key = "test";
-            var value = await _redisDb.StringGetAsync(key);
+            // var db = _redisClient.ConnectionMultiplexer.GetDatabase(0);
+            var db = _redisClient2.Database;
+            var key = $"test{id}";
+            var value = await db.StringGetAsync(key);
             if (value.HasValue)
             {
                 return Ok(value);
             }
             else
             {
-                await _redisDb.StringSetAsync(key, "test");
+                await db.StringSetAsync(key, $"{key}@");
+                return Ok("test");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> BadSet(string id)
+        {
+            //最簡單建立Redis連線的方式，但是每次都會建立新的連線，效能不好
+            var redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
+            var db = redis.GetDatabase();
+            var key = $"test{id}";
+            var value = await db.StringGetAsync(key);
+            if (value.HasValue)
+            {
+                return Ok(value);
+            }
+            else
+            {
+                await db.StringSetAsync(key, $"{key}@");
                 return Ok("test");
             }
         }
