@@ -1,6 +1,7 @@
 RedisClient和RedisClient2兩種寫法都可以，網上大神都有人用，
 我實測也確實正確
 
+podman run -itd --name redis-test -p 6379:6379 redis
 
 podman exec -it <容器id> redis-cli
 進入redis server cli模式，info clients指令可查看連線數
